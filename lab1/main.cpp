@@ -2,16 +2,16 @@
 #include <fstream>
 #include <cmath>
 #include <string>
-
+#include <filesystem>
 #define EST_DIFF 1.0e-5
 
 using namespace std;
 
-void readMatrixFromFile(ifstream& input, int n, long double* a, long double* b, long double* c, long double* p, long double* q, long double* f, long double* r)
+void readMatrixFromFile(ifstream &input, int n, long double *a, long double *b, long double *c, long double *p, long double *q, long double *f, long double *r)
 {
-	//input >> n;
+	// input >> n;
 
-	//считывание массива p[] и f[0]
+	// считывание массива p[] и f[0]
 	for (int i = 0; i < n; i++)
 		input >> p[i];
 	input >> f[0];
@@ -34,8 +34,7 @@ void readMatrixFromFile(ifstream& input, int n, long double* a, long double* b, 
 	b[n - 1] = q[0];
 	a[n - 1] = q[1];
 
-
-	//начальные значения массива r[]
+	// начальные значения массива r[]
 	for (int i = 2; i < (n - 1); i++)
 	{
 		r[i] = 0;
@@ -45,7 +44,7 @@ void readMatrixFromFile(ifstream& input, int n, long double* a, long double* b, 
 	r[n - 1] = q[n - 1];
 }
 
-void generateMatrix(ofstream& file, int n, int deg)
+void generateMatrix(ofstream &file, int n, int deg)
 {
 	srand(time(NULL));
 	long double rangeB = pow(10.0, deg);
@@ -79,7 +78,7 @@ void generateMatrix(ofstream& file, int n, int deg)
 	}
 }
 
-void generateMatrixFromSingles(ofstream& file, int n, int deg, int mod1, int mod2)
+void generateMatrixFromSingles(ofstream &file, int n, int deg, int mod1, int mod2)
 {
 	srand(time(NULL) + mod1 + mod2);
 	long double rangeB = pow(10.0, deg);
@@ -121,13 +120,13 @@ void generateMatrixFromSingles(ofstream& file, int n, int deg, int mod1, int mod
 	file << summ << " ";
 }
 
-void printMatrix(int n, long double* p, long double* q, long double* a, long double* b, long double* c, long double* f, long double* r)
+void printMatrix(int n, long double *p, long double *q, long double *a, long double *b, long double *c, long double *f, long double *r)
 {
-	for (int i = 0; i < n; i++) //вывод первой строки
+	for (int i = 0; i < n; i++) // вывод первой строки
 		cout << p[i] << "\t";
 	cout << "|\t" << f[0] << endl;
 
-	for (int i = 1; i < (n - 1); i++) //вывод строчек со второй по (n-1)-ую
+	for (int i = 1; i < (n - 1); i++) // вывод строчек со второй по (n-1)-ую
 	{
 		for (int j = 0; j < (n - 3 - (i - 1)); j++)
 			cout << "0\t";
@@ -140,22 +139,22 @@ void printMatrix(int n, long double* p, long double* q, long double* a, long dou
 				cout << "0\t";
 			cout << r[i] << '\t';
 		}
-		
+
 		cout << "|\t" << f[i] << endl;
 	}
 
-	for (int i = 0; i < n; i++) //вывод последней строки
+	for (int i = 0; i < n; i++) // вывод последней строки
 		cout << q[i] << '\t';
 	cout << "|\t" << f[n - 1] << endl;
 }
 
-void printMatrixRounded(int n, long double* p, long double* q, long double* a, long double* b, long double* c, long double* f, long double* r)
+void printMatrixRounded(int n, long double *p, long double *q, long double *a, long double *b, long double *c, long double *f, long double *r)
 {
-	for (int i = 0; i < n; i++) //вывод первой строки
+	for (int i = 0; i < n; i++) // вывод первой строки
 		cout << round(p[i] * 100) / 100 << "\t";
 	cout << "|\t" << round(f[0] * 100) / 100 << endl;
 
-	for (int i = 1; i < (n - 1); i++) //вывод строчек со второй по (n-1)-ую
+	for (int i = 1; i < (n - 1); i++) // вывод строчек со второй по (n-1)-ую
 	{
 		for (int j = 0; j < (n - 3 - (i - 1)); j++)
 			cout << "0\t";
@@ -172,15 +171,15 @@ void printMatrixRounded(int n, long double* p, long double* q, long double* a, l
 		cout << "|\t" << round(f[i] * 100) / 100 << endl;
 	}
 
-	for (int i = 0; i < n; i++) //вывод последней строки
+	for (int i = 0; i < n; i++) // вывод последней строки
 		cout << round(q[i] * 100) / 100 << '\t';
 	cout << "|\t" << round(f[n - 1] * 100) / 100 << endl;
 }
 
-void solveSystem(int n, long double* p, long double* q, long double* a, long double* b, long double* c, long double* f, long double* r, long double* x)
+void solveSystem(int n, long double *p, long double *q, long double *a, long double *b, long double *c, long double *f, long double *r, long double *x)
 {
 	long double R;
-	//STEP 1
+	// STEP 1
 	for (int i = 1; i < (n - 1); i++)
 	{
 		R = 1 / b[i];
@@ -222,7 +221,7 @@ void solveSystem(int n, long double* p, long double* q, long double* a, long dou
 	cout << endl;
 	*/
 
-	//STEP 2
+	// STEP 2
 	R = 1 / p[n - 1];
 	p[n - 1] = 1;
 	r[0] = 1;
@@ -248,7 +247,7 @@ void solveSystem(int n, long double* p, long double* q, long double* a, long dou
 	cout << endl;
 	*/
 
-	//STEP 3
+	// STEP 3
 	for (int i = 1; i < (n - 1); i++)
 	{
 		R = r[i];
@@ -263,7 +262,7 @@ void solveSystem(int n, long double* p, long double* q, long double* a, long dou
 	cout << endl;
 	*/
 
-	//STEP 4 !!!
+	// STEP 4 !!!
 	x[n - 1] = f[0];
 	x[0] = f[n - 1];
 	for (int i = 1; i < (n - 1); i++)
@@ -360,25 +359,25 @@ void findDiffFromSingles(int n, int m, long double* x)
 }
 */
 
-long double findDiffFromSingles(int n, int m, long double* x)
+long double findDiffFromSingles(int n, int m, long double *x)
 {
 	long double diff = 0;
 	for (int i = 0; i < n; i++)
 	{
 		diff = max(diff, abs(x[i] - 1));
 	}
-	
+
 	return diff;
 }
 
-long double* generateRandMatrixRandX(ofstream& file, int n, int deg, int mod1, int mod2)
+long double *generateRandMatrixRandX(ofstream &file, int n, int deg, int mod1, int mod2)
 {
 	srand(time(NULL) + mod1 + mod2);
 	long double rangeB = pow(10.0, deg);
 	long double rangeA = (-1) * rangeB;
 	long double summ = 0.0, arg = 0.0;
 
-	long double* genx = new long double[n];
+	long double *genx = new long double[n];
 	for (int i = 0; i < n; i++)
 	{
 		genx[i] = (double)rand() / (double)RAND_MAX * (rangeB - rangeA) + rangeA;
@@ -434,7 +433,7 @@ void findDiffSystem(int n, long double* acc_x, long double* x)
 }
 */
 
-long double findDiffSystem(int n, int m, long double* acc_x, long double* x)
+long double findDiffSystem(int n, int m, long double *acc_x, long double *x)
 {
 	long double diff = 0.0, curDiff = 0.0;
 	for (int i = 0; i < n; i++)
@@ -446,80 +445,111 @@ long double findDiffSystem(int n, int m, long double* acc_x, long double* x)
 		*/
 		diff = max(diff, curDiff);
 	}
-	
+
 	return diff;
 }
 
+
+
 void fullTest()
 {
-	string fileName;
-	cout << "Введите имя файла для записей матрицы: ";
-	cin >> fileName;
-	cout << endl;
+    string fileName;
+    cout << "Введите имя файла для записей матрицы: ";
+    cin >> fileName;
+    cout << endl;
 
-	long double differencesSingles[3][3] = { 0 };
-	long double differencesSys[3][3] = { 0 };
+    long double differencesSingles[3][3] = {0};
+    long double differencesSys[3][3] = {0};
+    std::filesystem::create_directory(fileName);
+    
+    for (int i = 0; i < 3; i++)
+    {
+        for (int j = 0; j < 3; j++)
+        {
+            int numTest = 25;
+            for (int k = 0; k < numTest; k++)
+            {
+                int n = i + 1;
+                string testFile = "./" + fileName + "/" + fileName + to_string(i + 1) + to_string(j + 1) + ".txt";
+                string testFileDiff = "./" + fileName + "/" + fileName + to_string(i + 1) + to_string(j + 1) + "Diff.txt";
+                ofstream test(testFile);
 
-	for (int i = 0; i < 3; i++)
-	{
-		for (int j = 0; j < 3; j++)
-		{
-			int numTest = 25;
-			for (int k = 0; k < numTest; k++)
-			{
-				int n = i + 1;
-				string testFile = fileName + to_string(i + 1) + to_string(j + 1) + ".txt";
-				string testFileDiff = fileName + to_string(i + 1) + to_string(j + 1) + "Diff.txt";
-				ofstream test(testFile);
+                int degN = 10; // Устанавливаем размер матрицы равным 10
+                generateMatrixFromSingles(test, degN, (j + 1), i, j);
+                test.close();
 
-				int degN = pow(10, n);
-				generateMatrixFromSingles(test, degN, (j + 1), i, j);
-				test.close();
+                long double *p = new long double[degN];
+                long double *q = new long double[degN];
+                long double *f = new long double[degN];
+                long double *a = new long double[degN];
+                long double *b = new long double[degN];
+                long double *c = new long double[degN];
+                long double *r = new long double[degN];
+                long double *x = new long double[degN];
 
-				long double* p = new long double[degN];
-				long double* q = new long double[degN];
-				long double* f = new long double[degN];
-				long double* a = new long double[degN];
-				long double* b = new long double[degN];
-				long double* c = new long double[degN];
-				long double* r = new long double[degN];
-				long double* x = new long double[degN];
+                // Чтение данных из файла
+                ifstream testRead(testFile);
+                testRead >> degN;
+                readMatrixFromFile(testRead, degN, a, b, c, p, q, f, r);
+                testRead.close();
 
-				ifstream testRead(testFile);
-				testRead >> degN;
-				readMatrixFromFile(testRead, degN, a, b, c, p, q, f, r);
-				solveSystem(degN, p, q, a, b, c, f, r, x);
-				differencesSingles[i][j] += findDiffFromSingles(degN, j, x);
+                // Сгенерированные иксы
+                long double *newx = new long double[degN];
+                ofstream testDiff(testFileDiff);
+                newx = generateRandMatrixRandX(testDiff, degN, (j + 1), i, j);
+                testDiff.close();
 
-				ofstream testDiff(testFileDiff);
-				long double* newx = new long double[i];
-				newx = generateRandMatrixRandX(testDiff, degN, (j + 1), i, j);
-				testDiff.close();
+                // Выводим исходную матрицу и сгенерированные иксы
+                if (i == 1 && j == 0 && k == 0)
+                {
+                    cout << "\nИсходная матрица 10x10" << "\n";
+                    printMatrix(degN, p, q, a, b, c, f, r);
+                    cout << "Сгенерированные иксы:" << "\n->";
+                    for (int i = 0; i < degN; i++)
+                    {
+                        cout << newx[i] << " ";
+                    }
+                    cout << "\n\n";
+                }
 
-				ifstream testDiffRead(testFileDiff);
-				testDiffRead >> degN;
-				readMatrixFromFile(testDiffRead, degN, a, b, c, p, q, f, r);
-				solveSystem(degN, p, q, a, b, c, f, r, x);
-				differencesSys[i][j] += findDiffSystem(degN, j, newx, x);
-			}
-			//differencesSingles[i][j] /= numTest;
-			//differencesSys[i][j] /= numTest;
+                // Решаем систему
+                solveSystem(degN, p, q, a, b, c, f, r, x);
 
-			cout << pow(10, (i + 1)) << 'x' << pow(10, (i + 1)) << ", (-" << pow(10, j + 1) << ", " << pow(10, j + 1) << "):" << endl;
-			cout << "Оценка точности решения = " << differencesSingles[i][j] / numTest << endl;
-			cout << "Средняя относительная погрешность системы = " << differencesSys[i][j] / numTest << endl;
-		}
-		cout << endl;
-	}
-	
+                // Выводим новую матрицу и решение после решения системы
+                if (i == 1 && j == 0 && k == 0)
+                {
+                    cout << "\nНовая матрица 10x10 после изменений" << "\n";
+                    printMatrix(degN, p, q, a, b, c, f, r);
+                    cout << "\nРешение системы для матрицы 10x10:" << endl;
+                    for (int i = 0; i < degN; i++)
+                    {
+                        cout << x[i] << " ";
+                    }
+                    cout << "\n\n";
+                }
+
+                // Вычисляем погрешности
+                differencesSingles[i][j] += findDiffFromSingles(degN, j, x);
+                differencesSys[i][j] += findDiffSystem(degN, j, newx, x);
+            }
+
+            // Выводим средние значения погрешностей
+            cout << pow(10, (i + 1)) << 'x' << pow(10, (i + 1)) << ", (-" << pow(10, j + 1) << ", " << pow(10, j + 1) << "):" << endl;
+            cout << "Оценка точности решения = " << differencesSingles[i][j] / numTest << endl;
+            cout << "Средняя относительная погрешность системы = " << differencesSys[i][j] / numTest << endl;
+        }
+        cout << endl;
+    }
 }
 
-void accuracyAnswer(int n, long double* a, long double* b, long double* c, long double* p, long double* q, long double* r)
+
+
+
+
+void accuracyAnswer(int n, long double *a, long double *b, long double *c, long double *p, long double *q, long double *r)
 {
-	long double* nf = new long double[n] {};
-	long double* nx = new long double[n] {};
-
-
+	long double *nf = new long double[n]{};
+	long double *nx = new long double[n]{};
 
 	for (int i = 0; i < n; i++)
 	{
@@ -543,7 +573,6 @@ void accuracyAnswer(int n, long double* a, long double* b, long double* c, long 
 		}
 	}
 
-	
 	solveSystem(n, p, q, a, b, c, nf, r, nx);
 
 	long double diff = 0;
@@ -561,7 +590,7 @@ void accuracyAnswer(int n, long double* a, long double* b, long double* c, long 
 int main()
 {
 	setlocale(LC_ALL, "rus");
-	
+
 	string fileName;
 	int n;
 
@@ -581,14 +610,14 @@ int main()
 		}
 		file >> n;
 
-		long double* p = new long double[n];
-		long double* q = new long double[n];
-		long double* f = new long double[n];
-		long double* a = new long double[n];
-		long double* b = new long double[n];
-		long double* c = new long double[n];
-		long double* r = new long double[n];
-		long double* x = new long double[n];
+		long double *p = new long double[n];
+		long double *q = new long double[n];
+		long double *f = new long double[n];
+		long double *a = new long double[n];
+		long double *b = new long double[n];
+		long double *c = new long double[n];
+		long double *r = new long double[n];
+		long double *x = new long double[n];
 
 		readMatrixFromFile(file, n, a, b, c, p, q, f, r);
 
@@ -615,7 +644,7 @@ int main()
 
 		return 0;
 	}
-	
+
 	else if (n == 2)
 	{
 		fullTest();
