@@ -64,7 +64,6 @@ double* solveBottomBandMatrix(int N, int L, double** A, double* f)
                 A[i + k][L - (k - j) - 1] -= mult * A[i + k][L - k - 1];
                 //printRectMatrixRounded(N, L, A, f);
             }
-            mult = cur_bottom[j - 1];
             f[i + j] -= f[i] * mult;
 
             printRectMatrixRounded(N, L, A, f);
@@ -83,62 +82,6 @@ double* solveBottomBandMatrix(int N, int L, double** A, double* f)
             x[i] -= A[k][L - (k - i) - 1] * x[k];
         }
         //x[i] /= A[i][L - 1];
-    }
-
-    delete[] cur_bottom;
-
-    return x;
-}
-
-
-double* solveBottomBandMatrixWithoutDivision(int N, int L, double** A, double* f)
-{
-    double mult;
-    double* cur_bottom = new double[L - 1];
-    // Прямой ход метода Гаусса с единственным делением
-    for (int i = 0; i < N; i++)
-    {
-        double diag = A[i][L - 1];
-        
-        
-        //cout << "cur_bottom: ";
-        for (int k = 1; k < L && i + k < N; k++) // сохраняем множители для операций со строками
-        {
-            cur_bottom[k - 1] = A[i + k][L - k - 1];
-            //cout << cur_bottom[k - 1] << ' ';
-        }
-        cout << endl;
-        
-
-        for (int j = 1; j < L && i + j < N; j++) // вычитание текущей строки из следующих
-        {
-
-            for (int k = j; k < L && i + k < N; k++)
-            {
-                mult = cur_bottom[k - 1] / diag;
-                //cout << cur_bottom[j - 1] << ' ' << diag << ' ' << "mult = " << mult << endl;
-                A[i + k][L - (k - j) - 1] -= mult * cur_bottom[j - 1];
-                //printRectMatrixRounded(N, L, A, f);
-            }
-            mult = cur_bottom[j - 1] / diag;
-            f[i + j] -= f[i] * mult;
-
-            printRectMatrixRounded(N, L, A, f);
-        }
-        
-    }
-
-    // Обратный ход
-    double* x = new double[N];
-    for (int i = N - 1; i >= 0; i--)
-    {
-        x[i] = f[i];
-
-        for (int k = i + 1; k < N && k - i < L; k++)
-        {
-            x[i] -= A[k][L - (k - i) - 1] * x[k];
-        }
-        x[i] /= A[i][L - 1];
     }
 
     delete[] cur_bottom;
