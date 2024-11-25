@@ -34,11 +34,11 @@ void printRectMatrixRounded(int N, int L, double** A, double* f)
     cout << endl;
 }
 
-// Функция для решения СЛАУ с нижнеленточной матрицей
+// решение с нижнеленточной матрицей
 double* solveBottomBandMatrix(int N, int L, double** A, double* f)
 {
     double mult;
-    double* cur_bottom = new double[L - 1];
+    double* first_column_backup = new double[L - 1];
     // Прямой ход метода Гаусса с единственным делением
     for (int i = 0; i < N; i++)
     {
@@ -48,7 +48,7 @@ double* solveBottomBandMatrix(int N, int L, double** A, double* f)
 
         for (int k = 1; k < L && i + k < N; k++) // сохраняем множители для операций со строками
         {
-            cur_bottom[k - 1] = A[i + k][L - k - 1];
+            first_column_backup[k - 1] = A[i + k][L - k - 1];
         }
 
         for (int j = 1; j < L && i + j < N; j++)
@@ -58,7 +58,7 @@ double* solveBottomBandMatrix(int N, int L, double** A, double* f)
 
         for (int j = 1; j < L && i + j < N; j++) // вычитание текущей строки из следующих
         {
-            mult = cur_bottom[j - 1];
+            mult = first_column_backup[j - 1];
             for (int k = j; k < L && i + k < N; k++)
             {
                 A[i + k][L - (k - j) - 1] -= mult * A[i + k][L - k - 1];
@@ -84,7 +84,7 @@ double* solveBottomBandMatrix(int N, int L, double** A, double* f)
         //x[i] /= A[i][L - 1];
     }
 
-    delete[] cur_bottom;
+    delete[] first_column_backup;
 
     return x;
 }
