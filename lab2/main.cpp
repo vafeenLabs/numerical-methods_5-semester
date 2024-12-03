@@ -89,8 +89,8 @@ double *solveBottomBandMatrix(int N, int L, double **A, double *f)
 
 double *generateRandBand(ofstream &file, int N, int L)
 {
-    double* genx = new double[N];
-    double** newA = new double* [N];
+    double *genx = new double[N];
+    double **newA = new double *[N];
     for (int i = 0; i < N; i++)
         newA[i] = new double[L];
 
@@ -155,7 +155,6 @@ void readMatrixFromFile(ifstream &inputFile, int N, int L, double *f, double **A
     }
 }
 
-
 void printArray(double *array, int size)
 {
     for (int i = 0; i < size; ++i)
@@ -166,7 +165,7 @@ void printArray(double *array, int size)
 
 void test(string testFileName, int N, int L, int numTests)
 {
-    
+
     double globDiff = 0.0, diff = 0.0, curDiff = 0.0;
     double *f = new double[N];
     double **A = new double *[N];
@@ -179,7 +178,6 @@ void test(string testFileName, int N, int L, int numTests)
             cout << "Сгенерированные иксы:->";
             printArray(sourceX, N);
             cout << '\n';
-            
         }
         fileWrite.close();
         ifstream fileRead(testFileName + ".txt");
@@ -191,8 +189,9 @@ void test(string testFileName, int N, int L, int numTests)
         {
             cout << "Полученные иксы:->";
             printArray(newX, N);
-            cout << '\n';
+            cout << "\n\n";
         }
+        
         diff = 0.0;
         for (int i = 0; i < N; i++)
         {
@@ -206,51 +205,6 @@ void test(string testFileName, int N, int L, int numTests)
     cout << "Порядок матрицы = " << N << "x" << N << ", диапазон эл-ов = [-10; 10]: " << globDiff << endl;
 }
 
-void testSolveFile(ifstream inputFile)
-{
-    int N, L;
-    inputFile >> N >> L;
-    double *f = new double[N];
-    double **A = new double *[N];
-
-    readMatrixFromFile(inputFile, N, L, f, A);
-    inputFile.close();
-
-    double *genX = new double[N];
-    cout << "Сгенерированные иксы:->";
-    for (int i = 0; i < N; i++)
-    {
-        genX[i] = (double)rand() / (double)RAND_MAX * 20.0 - 10.0;
-        cout << genX[i] << ' ';
-    }
-    cout << "\n";
-
-    for (int i = N - 1; i >= 0; i--)
-    {
-        f[i] = 0.0;
-
-        for (int k = i; k < N && k - i < L; k++)
-            f[i] += A[k][L - (k - i) - 1] * genX[k];
-
-        for (int j = 1; j < L; j++)
-            f[i] += A[i][L - j - 1] * genX[i - j];
-    }
-
-    double *newX = solveBottomBandMatrix(N, L, A, f);
-    cout << "Полученные иксы:\n->";
-    printArray(newX, N);
-    cout << "\n";
-    double diff = 0.0, curDiff = 0.0;
-    for (int i = 0; i < N; i++)
-    {
-        for (int i = 0; i < N; i++)
-        {
-            curDiff = abs(newX[i] - genX[i]);
-            diff = max(diff, curDiff);
-        }
-    }
-    cout << "Средняя относительная погрешность решения = " << diff << endl;
-}
 
 double **cloneMatrix(double **A, int N, int L)
 {
@@ -307,6 +261,7 @@ int main()
             cout << "x[" << i << "] = " << x[i] << endl;
         }
 
+        // измерение погрешности
         double **newA = cloneMatrix(A, N, L);
         double *genX = new double[N];
         double *newF = new double[N];
@@ -360,8 +315,7 @@ int main()
         srand(time(NULL));
 
         int numTests = 20;
-        string testFileName = "testRand";
-        cout << "\nВычислительный эксперимент №1:\n\n";
+        string testFileName = "testMatrix";
 
         int N = 10;
         int L = 2;
