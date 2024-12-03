@@ -2,10 +2,11 @@
 #include <fstream>
 #include <cmath>
 #include <algorithm>
+#include <filesystem>
 
 using namespace std;
-
-// вывод матрицы 
+string testsDirName = "./tests/";
+// вывод матрицы
 void printRectMatrixRounded(int N, int L, double **A, double *f)
 {
     for (int i = 0; i < N; i++)
@@ -21,7 +22,7 @@ void printRectMatrixRounded(int N, int L, double **A, double *f)
     cout << endl;
 }
 
-// решение системы 
+// решение системы
 double *solveBottomMatrix(int N, int L, double **A, double *f)
 {
     double mult;
@@ -77,6 +78,7 @@ double *solveBottomMatrix(int N, int L, double **A, double *f)
 // генерация рандомной матрицы
 double *generateRandMatrix(ofstream &file, int N, int L)
 {
+
     double *genx = new double[N];
     double **newA = new double *[N];
     for (int i = 0; i < N; i++)
@@ -144,7 +146,7 @@ void readMatrixFromFile(ifstream &inputFile, int N, int L, double *f, double **A
     }
 }
 
-// вывод динамического массива 
+// вывод динамического массива
 void printArray(double *array, int size)
 {
     for (int i = 0; i < size; ++i)
@@ -153,7 +155,7 @@ void printArray(double *array, int size)
     }
 }
 
-// тесты 
+// тесты
 void test(string testFileName, int N, int L, int numTests)
 {
 
@@ -162,7 +164,7 @@ void test(string testFileName, int N, int L, int numTests)
     double **A = new double *[N];
     for (int k = 0; k < numTests; k++)
     {
-        ofstream fileWrite(testFileName + ".txt");
+        ofstream fileWrite(testsDirName + testFileName + ".txt");
         double *sourceX = generateRandMatrix(fileWrite, N, L);
         if (N == 10)
         {
@@ -196,7 +198,7 @@ void test(string testFileName, int N, int L, int numTests)
     cout << "Порядок матрицы = " << N << "x" << N << ", диапазон эл-ов = [-10; 10]: " << globDiff << endl;
 }
 
-// бэкап матрицы 
+// бэкап матрицы
 double **cloneMatrix(double **A, int N, int L)
 {
     double **clone = new double *[N];
@@ -218,6 +220,7 @@ int main()
     cout << "1: Матрица из файла\t2: Сгенерировать тесты\nВыбор: ";
     cin >> n;
 
+    std::filesystem::create_directory(testsDirName);
     if (n == 1)
     {
         cout << "Введите имя файла: ";
