@@ -134,7 +134,7 @@
 //             f[i] += A[i][L - j - 1] * genX[i - j];
 //     }
 
-//     double *newX = solveBottomBandMatrix(N, L, A, f);
+//     double *newX = solveBottomMatrix(N, L, A, f);
 //     cout << "Полученные иксы:\n->";
 //     printArray(newX, N);
 //     cout << "\n";
@@ -148,4 +148,20 @@
 //         }
 //     }
 //     cout << "Средняя относительная погрешность решения = " << diff << endl;
+// }
+
+
+// void printRectMatrix(int N, int L, double **A, double *f)
+// {
+//     for (int i = 0; i < N; i++)
+//     {
+//         for (int j = 0; j < L; j++)
+//         {
+//             cout << A[i][j] << '\t';
+//         }
+//         cout << "|\t" << f[i] << endl;
+//     }
+//     for (int i = 0; i < 40; i++)
+//         cout << '-';
+//     cout << endl;
 // }

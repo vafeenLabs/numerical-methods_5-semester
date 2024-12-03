@@ -5,21 +5,7 @@
 
 using namespace std;
 
-void printRectMatrix(int N, int L, double **A, double *f)
-{
-    for (int i = 0; i < N; i++)
-    {
-        for (int j = 0; j < L; j++)
-        {
-            cout << A[i][j] << '\t';
-        }
-        cout << "|\t" << f[i] << endl;
-    }
-    for (int i = 0; i < 40; i++)
-        cout << '-';
-    cout << endl;
-}
-
+// вывод матрицы 
 void printRectMatrixRounded(int N, int L, double **A, double *f)
 {
     for (int i = 0; i < N; i++)
@@ -35,7 +21,8 @@ void printRectMatrixRounded(int N, int L, double **A, double *f)
     cout << endl;
 }
 
-double *solveBottomBandMatrix(int N, int L, double **A, double *f)
+// решение системы 
+double *solveBottomMatrix(int N, int L, double **A, double *f)
 {
     double mult;
     double *mult_set = new double[L - 1];
@@ -87,7 +74,8 @@ double *solveBottomBandMatrix(int N, int L, double **A, double *f)
     return x;
 }
 
-double *generateRandBand(ofstream &file, int N, int L)
+// генерация рандомной матрицы
+double *generateRandMatrix(ofstream &file, int N, int L)
 {
     double *genx = new double[N];
     double **newA = new double *[N];
@@ -142,6 +130,7 @@ double *generateRandBand(ofstream &file, int N, int L)
     return genx;
 }
 
+// чтение из файла
 void readMatrixFromFile(ifstream &inputFile, int N, int L, double *f, double **A)
 {
     for (int i = 0; i < N; i++)
@@ -155,6 +144,7 @@ void readMatrixFromFile(ifstream &inputFile, int N, int L, double *f, double **A
     }
 }
 
+// вывод динамического массива 
 void printArray(double *array, int size)
 {
     for (int i = 0; i < size; ++i)
@@ -163,6 +153,7 @@ void printArray(double *array, int size)
     }
 }
 
+// тесты 
 void test(string testFileName, int N, int L, int numTests)
 {
 
@@ -172,7 +163,7 @@ void test(string testFileName, int N, int L, int numTests)
     for (int k = 0; k < numTests; k++)
     {
         ofstream fileWrite(testFileName + ".txt");
-        double *sourceX = generateRandBand(fileWrite, N, L);
+        double *sourceX = generateRandMatrix(fileWrite, N, L);
         if (N == 10)
         {
             cout << "Сгенерированные иксы:->";
@@ -184,14 +175,14 @@ void test(string testFileName, int N, int L, int numTests)
         fileRead >> N >> L;
         readMatrixFromFile(fileRead, N, L, f, A);
 
-        double *newX = solveBottomBandMatrix(N, L, A, f);
+        double *newX = solveBottomMatrix(N, L, A, f);
         if (N == 10)
         {
             cout << "Полученные иксы:->";
             printArray(newX, N);
             cout << "\n\n";
         }
-        
+
         diff = 0.0;
         for (int i = 0; i < N; i++)
         {
@@ -205,7 +196,7 @@ void test(string testFileName, int N, int L, int numTests)
     cout << "Порядок матрицы = " << N << "x" << N << ", диапазон эл-ов = [-10; 10]: " << globDiff << endl;
 }
 
-
+// бэкап матрицы 
 double **cloneMatrix(double **A, int N, int L)
 {
     double **clone = new double *[N];
@@ -252,7 +243,7 @@ int main()
 
         printRectMatrixRounded(N, L, A, f);
         // Решение системы
-        double *x = solveBottomBandMatrix(N, L, A, f);
+        double *x = solveBottomMatrix(N, L, A, f);
 
         // Вывод результата
         cout << "Решение системы:" << endl;
@@ -281,7 +272,7 @@ int main()
                 newF[i] += A[i][L - j - 1] * genX[i - j];
         }
 
-        double *newX = solveBottomBandMatrix(N, L, newA, newF);
+        double *newX = solveBottomMatrix(N, L, newA, newF);
 
         double diff = 0.0, curDiff = 0.0;
         for (int i = 0; i < N; i++)
