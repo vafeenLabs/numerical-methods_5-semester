@@ -2,11 +2,39 @@
 #include <fstream>
 #include <cmath>
 #include <algorithm>
-#include <filesystem>
 
 using namespace std;
-string testsDirName = "./tests/";
-// вывод матрицы
+
+void printRectMatrix(int N, int L, double **A, double *f)
+{
+    for (int i = 0; i < N; i++)
+    {
+        for (int j = 0; j < L; j++)
+        {
+            cout << A[i][j] << '\t';
+        }
+        cout << "|\t" << f[i] << endl;
+    }
+    for (int i = 0; i < 40; i++)
+        cout << '-';
+    cout << endl;
+}
+
+void printRectMatrixWithoutF(int N, int L, double **A)
+{
+    for (int i = 0; i < N; i++)
+    {
+        for (int j = 0; j < L; j++)
+        {
+            cout << round(A[i][j] * 100.0) / 100.0 << '\t';
+        }
+        cout << endl;
+    }
+    for (int i = 0; i < 40; i++)
+        cout << '-';
+    cout << endl;
+}
+
 void printRectMatrixRounded(int N, int L, double **A, double *f)
 {
     for (int i = 0; i < N; i++)
@@ -22,8 +50,67 @@ void printRectMatrixRounded(int N, int L, double **A, double *f)
     cout << endl;
 }
 
-// решение системы
-double *solveBottomMatrix(int N, int L, double **A, double *f)
+// Функция для решения СЛАУ с нижнеленточной матрицей
+double *solveBottomBandMatrixIncorrect(int N, int L, double **A, double *f)
+{
+    double mult;
+    double *cur_bottom = new double[L - 1];
+    // Прямой ход метода Гаусса с единственным делением
+    for (int i = 0; i < N; i++)
+    {
+        double diag = A[i][L - 1];
+        /*if (diag == 0.0)
+        {
+            cerr << "Error: diagonal element [" << i << "][" << i << "] equals 0.";
+            return nullptr;
+        }*/
+        f[i] /= diag;
+        A[i][L - 1] = 1.0;
+
+        for (int k = 1; k < L && i + k < N; k++) // сохраняем множители для операций со строками
+        {
+            cur_bottom[k - 1] = A[i + k][L - k - 1];
+        }
+
+        for (int j = 1; j < L && i + j < N; j++)
+        {
+            A[i + j][L - j - 1] /= diag;
+        }
+
+        for (int j = 1; j < L && i + j < N; j++) // вычитание текущей строки из следующих
+        {
+            mult = cur_bottom[j - 1];
+            for (int k = j; k < L && i + k < N; k++)
+            {
+                A[i + k][L - (k - j) - 1] -= mult * A[i + k][L - k - 1];
+                // printRectMatrixRounded(N, L, A, f);
+            }
+
+            f[i + j] -= f[i] * mult;
+
+            // printRectMatrixRounded(N, L, A, f);
+        }
+        printRectMatrixRounded(N, L, A, f);
+    }
+
+    // Обратный ход
+    double *x = new double[N];
+    for (int i = N - 1; i >= 0; i--)
+    {
+        x[i] = f[i];
+
+        for (int k = L - 2; k >= 0; k--)
+        {
+            x[i] -= A[i][k] * x[k - i];
+        }
+    }
+
+    delete[] cur_bottom;
+
+    return x;
+}
+
+double *solveBottomBandMatrix(int N, int L, double **A, double *f)
 {
     double mult;
     double *mult_set = new double[L - 1];
@@ -75,10 +162,9 @@ double *solveBottomMatrix(int N, int L, double **A, double *f)
     return x;
 }
 
-// генерация рандомной матрицы
-double *generateRandMatrix(ofstream &file, int N, int L)
+double *generateRandBand(ofstream &file, int N, int L)
 {
-
+    srand(time(NULL));
     double *genx = new double[N];
     double **newA = new double *[N];
     for (int i = 0; i < N; i++)
@@ -132,7 +218,26 @@ double *generateRandMatrix(ofstream &file, int N, int L)
     return genx;
 }
 
-// чтение из файла
+void MultiplyDiag(int N, int L, double **A, double *f, double *x, int k)
+{
+    double badK = pow(10, (-2) * k);
+    for (int i = 0; i < N; i++)
+    {
+        A[i][L - 1] *= badK;
+    }
+
+    for (int i = N - 1; i >= 0; i--)
+    {
+        f[i] = 0.0;
+
+        for (int k = i; k < N && k - i < L; k++)
+            f[i] += A[k][L - (k - i) - 1] * x[k];
+
+        for (int j = 1; j < L && (i - j) >= 0; j++)
+            f[i] += A[i][L - j - 1] * x[i - j];
+    }
+}
+
 void readMatrixFromFile(ifstream &inputFile, int N, int L, double *f, double **A)
 {
     for (int i = 0; i < N; i++)
@@ -154,33 +259,31 @@ void printArray(double *array, int size)
         cout << array[i] << ' ';
     }
 }
-
-// тесты
-void test(string testFileName, int N, int L, int numTests)
+void test1(string testFileName, int N, int L, int numTests)
 {
-
     double globDiff = 0.0, diff = 0.0, curDiff = 0.0;
     double *f = new double[N];
     double **A = new double *[N];
     for (int k = 0; k < numTests; k++)
     {
-        ofstream fileWrite(testsDirName + testFileName + ".txt");
-        double *sourceX = generateRandMatrix(fileWrite, N, L);
+        ofstream fileWrite(testFileName + ".txt");
+        double *sourceX = generateRandBand(fileWrite, N, L);
         if (N == 10)
         {
-            cout << "Сгенерированные иксы:->";
+            cout << "Generated solution:->";
             printArray(sourceX, N);
             cout << '\n';
         }
         fileWrite.close();
+
         ifstream fileRead(testFileName + ".txt");
         fileRead >> N >> L;
         readMatrixFromFile(fileRead, N, L, f, A);
 
-        double *newX = solveBottomMatrix(N, L, A, f);
+        double *newX = solveBottomBandMatrix(N, L, A, f);
         if (N == 10)
         {
-            cout << "Полученные иксы:->";
+            cout << "Solved solution:->";
             printArray(newX, N);
             cout << "\n\n";
         }
@@ -195,10 +298,90 @@ void test(string testFileName, int N, int L, int numTests)
     }
     cout << "N = " << N << "  L = " << L << endl;
     globDiff /= numTests;
-    cout << "Порядок матрицы = " << N << "x" << N << ", диапазон эл-ов = [-10; 10]: " << globDiff << endl;
+    cout << "Matrix size = " << N << "x" << N << ", range = [-10; 10]: " << globDiff << endl;
 }
 
-// бэкап матрицы
+void test2(string testFileName, int N, int L, int numTests)
+{
+    cout << "N = " << N << "  L = " << L << endl;
+
+    double diff = 0.0, curDiff = 0.0;
+    double *F = new double[N];
+    double **A = new double *[N];
+    double *globDiffers = new double[3];
+    for (int i = 0; i < 3; i++)
+        globDiffers[i] = 0.0;
+
+    for (int j = 0; j < numTests; j++)
+    {
+        ofstream fileWrite(testFileName + ".txt");
+        double *sourceX = generateRandBand(fileWrite, N, L);
+        fileWrite.close();
+
+        for (int k = 2; k < 8; k += 2)
+        {
+            ifstream fileRead(testFileName + ".txt");
+            fileRead >> N >> L;
+            readMatrixFromFile(fileRead, N, L, F, A);
+
+            MultiplyDiag(N, L, A, F, sourceX, k);
+
+            double *newX = solveBottomBandMatrix(N, L, A, F);
+
+            diff = 0.0;
+            for (int i = 0; i < N; i++)
+            {
+                curDiff = abs(newX[i] - sourceX[i]);
+                diff = max(diff, curDiff);
+            }
+            globDiffers[k / 2 - 1] += diff;
+        }
+    }
+    for (int i = 0; i < 3; i++)
+        cout << "Matrix size = " << N << "x" << N << ", range = [-10; 10], k = " << (i + 1) * 2 << ": " << globDiffers[i] / numTests << endl;
+}
+
+void testSolveFile(ifstream inputFile)
+{
+    int N, L;
+    inputFile >> N >> L;
+    double *f = new double[N];
+    double **A = new double *[N];
+
+    readMatrixFromFile(inputFile, N, L, f, A);
+    inputFile.close();
+
+    double *genX = new double[N];
+    for (int i = 0; i < N; i++)
+    {
+        genX[i] = (double)rand() / (double)RAND_MAX * 20.0 - 10.0;
+    }
+
+    for (int i = N - 1; i >= 0; i--)
+    {
+        f[i] = 0.0;
+
+        for (int k = i; k < N && k - i < L; k++)
+            f[i] += A[k][L - (k - i) - 1] * genX[k];
+
+        for (int j = 1; j < L; j++)
+            f[i] += A[i][L - j - 1] * genX[i - j];
+    }
+
+    double *newX = solveBottomBandMatrix(N, L, A, f);
+
+    double diff = 0.0, curDiff = 0.0;
+    for (int i = 0; i < N; i++)
+    {
+        for (int i = 0; i < N; i++)
+        {
+            curDiff = abs(newX[i] - genX[i]);
+            diff = max(diff, curDiff);
+        }
+    }
+    cout << "Avarage difference for system = " << diff << endl;
+}
+
 double **cloneMatrix(double **A, int N, int L)
 {
     double **clone = new double *[N];
@@ -217,20 +400,19 @@ int main()
     setlocale(LC_ALL, "rus");
     srand(time(NULL));
     int n;
-    cout << "1: Матрица из файла\t2: Сгенерировать тесты\nВыбор: ";
+    cout << "1: Matrix from file\t2: Tests\n->: ";
     cin >> n;
 
-    std::filesystem::create_directory(testsDirName);
     if (n == 1)
     {
-        cout << "Введите имя файла: ";
+        cout << "Enter fileName: ";
         string fileName;
         cin >> fileName;
         fileName += ".txt";
         ifstream inputFile(fileName);
         if (!inputFile)
         {
-            cerr << "Ошибка: не удалось открыть файл " << fileName << ".\n";
+            cerr << "Error openning file " << fileName << ".\n";
             return 1;
         }
 
@@ -246,10 +428,10 @@ int main()
 
         printRectMatrixRounded(N, L, A, f);
         // Решение системы
-        double *x = solveBottomMatrix(N, L, A, f);
+        double *x = solveBottomBandMatrix(N, L, A, f);
 
         // Вывод результата
-        cout << "Решение системы:" << endl;
+        cout << "Solution:" << endl;
         for (int i = 0; i < N; i++)
         {
             cout << "x[" << i << "] = " << x[i] << endl;
@@ -275,7 +457,7 @@ int main()
                 newF[i] += A[i][L - j - 1] * genX[i - j];
         }
 
-        double *newX = solveBottomMatrix(N, L, newA, newF);
+        double *newX = solveBottomBandMatrix(N, L, newA, newF);
 
         double diff = 0.0, curDiff = 0.0;
         for (int i = 0; i < N; i++)
@@ -286,7 +468,7 @@ int main()
                 diff = max(diff, curDiff);
             }
         }
-        cout << "Средняя относительная погрешность решения = " << diff << endl;
+        cout << "Avarage difference for system = " << diff << endl;
 
         // Освобождение памяти
         for (int i = 0; i < N; i++)
@@ -314,19 +496,19 @@ int main()
         int N = 10;
         int L = 2;
 
-        test(testFileName, N, L, numTests);
+        test1(testFileName, N, L, numTests);
 
         N = 10;
         L = 5;
-        test(testFileName, N, L, numTests);
+        test1(testFileName, N, L, numTests);
 
         N = 50;
         L = 10;
-        test(testFileName, N, L, numTests);
+        test1(testFileName, N, L, numTests);
 
         N = 50;
         L = 20;
-        test(testFileName, N, L, numTests);
+        test2(testFileName, N, L, numTests);
     }
 
     return 0;
