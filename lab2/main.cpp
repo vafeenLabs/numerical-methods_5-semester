@@ -1,170 +1,7 @@
-#include <iostream>
-#include <fstream>
-#include <cmath>
-#include <algorithm>
-
-using namespace std;
-
-void printRectMatrix(int N, int L, double **A, double *f)
-{
-    for (int i = 0; i < N; i++)
-    {
-        for (int j = 0; j < L; j++)
-        {
-            cout << A[i][j] << '\t';
-        }
-        cout << "|\t" << f[i] << endl;
-    }
-    for (int i = 0; i < 40; i++)
-        cout << '-';
-    cout << endl;
-}
-
-void printRectMatrixWithoutF(int N, int L, double **A)
-{
-    for (int i = 0; i < N; i++)
-    {
-        for (int j = 0; j < L; j++)
-        {
-            cout << round(A[i][j] * 100.0) / 100.0 << '\t';
-        }
-        cout << endl;
-    }
-    for (int i = 0; i < 40; i++)
-        cout << '-';
-    cout << endl;
-}
-
-void printRectMatrixRounded(int N, int L, double **A, double *f)
-{
-    for (int i = 0; i < N; i++)
-    {
-        for (int j = 0; j < L; j++)
-        {
-            cout << round(A[i][j] * 100.0) / 100.0 << '\t';
-        }
-        cout << "|\t" << f[i] << endl;
-    }
-    for (int i = 0; i < 41; i++)
-        cout << '-';
-    cout << endl;
-}
-
-// Функция для решения СЛАУ с нижнеленточной матрицей
-double *solveBottomBandMatrixIncorrect(int N, int L, double **A, double *f)
-{
-    double mult;
-    double *cur_bottom = new double[L - 1];
-    // Прямой ход метода Гаусса с единственным делением
-    for (int i = 0; i < N; i++)
-    {
-        double diag = A[i][L - 1];
-        /*if (diag == 0.0)
-        {
-            cerr << "Error: diagonal element [" << i << "][" << i << "] equals 0.";
-            return nullptr;
-        }*/
-        f[i] /= diag;
-        A[i][L - 1] = 1.0;
-
-        for (int k = 1; k < L && i + k < N; k++) // сохраняем множители для операций со строками
-        {
-            cur_bottom[k - 1] = A[i + k][L - k - 1];
-        }
-
-        for (int j = 1; j < L && i + j < N; j++)
-        {
-            A[i + j][L - j - 1] /= diag;
-        }
-
-        for (int j = 1; j < L && i + j < N; j++) // вычитание текущей строки из следующих
-        {
-            mult = cur_bottom[j - 1];
-            for (int k = j; k < L && i + k < N; k++)
-            {
-                A[i + k][L - (k - j) - 1] -= mult * A[i + k][L - k - 1];
-                // printRectMatrixRounded(N, L, A, f);
-            }
-
-            f[i + j] -= f[i] * mult;
-
-            // printRectMatrixRounded(N, L, A, f);
-        }
-        printRectMatrixRounded(N, L, A, f);
-    }
-
-    // Обратный ход
-    double *x = new double[N];
-    for (int i = N - 1; i >= 0; i--)
-    {
-        x[i] = f[i];
-
-        for (int k = L - 2; k >= 0; k--)
-        {
-            x[i] -= A[i][k] * x[k - i];
-        }
-    }
-
-    delete[] cur_bottom;
-
-    return x;
-}
-
-double *solveBottomBandMatrix(int N, int L, double **A, double *f)
-{
-    double mult;
-    double *mult_set = new double[L - 1];
-
-    for (int i = N - 1; i >= 0; i--)
-    {
-        double diag = A[i][L - 1];
-
-        f[i] /= diag;
-        A[i][L - 1] = 1.0;
-
-        for (int k = 1; k < L; k++) // сохраняем множители для операций со строками
-        {
-            mult_set[k - 1] = A[i][L - k - 1];
-            A[i][L - k - 1] /= diag;
-        }
-
-        for (int j = 0; j < L - 1 && (i - j - 1) >= 0; j++) // вычитание текущей строки из следующих
-        {
-            mult = mult_set[j];
-            for (int k = 1; k < L && (L - k - j - 1) >= 0; k++)
-            {
-                A[i - j - 1][L - k] -= mult * A[i][L - k - j - 1];
-                // printRectMatrixRounded(N, L, A, f);
-            }
-
-            f[i - j - 1] -= f[i] * mult;
-
-            // printRectMatrixRounded(N, L, A, f);
-        }
-
-        // printRectMatrixRounded(N, L, A, f);
-    }
-
-    // Обратный ход
-    double *x = new double[N];
-    for (int i = 0; i < N; i++)
-    {
-        x[i] = f[i];
-
-        for (int k = 1; k < L && i - k >= 0; k++)
-        {
-            x[i] -= A[i][L - k - 1] * x[i - k];
-        }
-    }
-
-    delete[] mult_set;
-
-    return x;
-}
+#include "main.hpp"
 
 double *generateRandBand(ofstream &file, int N, int L)
 {
-    srand(time(NULL));
     double *genx = new double[N];
     double **newA = new double *[N];
     for (int i = 0; i < N; i++)
@@ -251,14 +88,7 @@ void readMatrixFromFile(ifstream &inputFile, int N, int L, double *f, double **A
     }
 }
 
-// вывод динамического массива
-void printArray(double *array, int size)
-{
-    for (int i = 0; i < size; ++i)
-    {
-        cout << array[i] << ' ';
-    }
-}
+
 void test1(string testFileName, int N, int L, int numTests)
 {
     double globDiff = 0.0, diff = 0.0, curDiff = 0.0;
@@ -382,25 +212,15 @@ void testSolveFile(ifstream inputFile)
     cout << "Avarage difference for system = " << diff << endl;
 }
 
-double **cloneMatrix(double **A, int N, int L)
-{
-    double **clone = new double *[N];
-    for (int i = 0; i < N; i++)
-        clone[i] = new double[L];
-
-    for (int i = 0; i < N; i++)
-        for (int j = 0; j < L; j++)
-            clone[i][j] = A[i][j];
-
-    return clone;
-}
 
 int main()
 {
     setlocale(LC_ALL, "rus");
     srand(time(NULL));
+
+    std::filesystem::create_directory(testDir);
     int n;
-    cout << "1: Matrix from file\t2: Tests\n->: ";
+    cout << "1: Matrix from file\t2: Tests\t3: Exit\n->: ";
     cin >> n;
 
     if (n == 1)
@@ -423,10 +243,9 @@ int main()
 
         readMatrixFromFile(inputFile, N, L, f, A);
 
-        // Закрываем файл
         inputFile.close();
 
-        printRectMatrixRounded(N, L, A, f);
+        printMatrixRounded(N, L, A, f);
         // Решение системы
         double *x = solveBottomBandMatrix(N, L, A, f);
 
@@ -491,7 +310,7 @@ int main()
         srand(time(NULL));
 
         int numTests = 20;
-        string testFileName = "testMatrix";
+        string testFileName = testDir + "testMatrix";
 
         int N = 10;
         int L = 2;
@@ -510,6 +329,9 @@ int main()
         L = 20;
         test2(testFileName, N, L, numTests);
     }
-
+    if (n == 3)
+    {
+        exit(0);
+    }
     return 0;
 }
