@@ -153,7 +153,7 @@ void test2(string testFileName, int N, int L, int numTests)
             ifstream fileRead(testFileName + ".txt");
             fileRead >> N >> L;
             readMatrixFromFile(fileRead, N, L, F, A);
-
+// Умножаем элементы на 10^-2к 
             MultiplyDiag(N, L, A, F, sourceX, k);
 
             double *newX = solveBottomBandMatrix(N, L, A, F);
