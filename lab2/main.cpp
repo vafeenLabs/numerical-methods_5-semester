@@ -170,46 +170,46 @@ void test2(string testFileName, int N, int L, int numTests)
         cout << "Matrix size = " << N << "x" << N << ", range = [-10; 10], k = " << (i + 1) * 2 << ": " << globDiffers[i] / numTests << endl;
 }
 
-void testSolveFile(ifstream inputFile)
-{
-    int N, L;
-    inputFile >> N >> L;
-    double *f = new double[N];
-    double **A = new double *[N];
+// void testSolveFile(ifstream inputFile)
+// {
+//     int N, L;
+//     inputFile >> N >> L;
+//     double *f = new double[N];
+//     double **A = new double *[N];
 
-    readMatrixFromFile(inputFile, N, L, f, A);
-    inputFile.close();
+//     readMatrixFromFile(inputFile, N, L, f, A);
+//     inputFile.close();
 
-    double *genX = new double[N];
-    for (int i = 0; i < N; i++)
-    {
-        genX[i] = (double)rand() / (double)RAND_MAX * 20.0 - 10.0;
-    }
+//     double *genX = new double[N];
+//     for (int i = 0; i < N; i++)
+//     {
+//         genX[i] = (double)rand() / (double)RAND_MAX * 20.0 - 10.0;
+//     }
 
-    for (int i = N - 1; i >= 0; i--)
-    {
-        f[i] = 0.0;
+//     for (int i = N - 1; i >= 0; i--)
+//     {
+//         f[i] = 0.0;
 
-        for (int k = i; k < N && k - i < L; k++)
-            f[i] += A[k][L - (k - i) - 1] * genX[k];
+//         for (int k = i; k < N && k - i < L; k++)
+//             f[i] += A[k][L - (k - i) - 1] * genX[k];
 
-        for (int j = 1; j < L; j++)
-            f[i] += A[i][L - j - 1] * genX[i - j];
-    }
+//         for (int j = 1; j < L; j++)
+//             f[i] += A[i][L - j - 1] * genX[i - j];
+//     }
 
-    double *newX = solveBottomBandMatrix(N, L, A, f);
+//     double *newX = solveBottomBandMatrix(N, L, A, f);
 
-    double diff = 0.0, curDiff = 0.0;
-    for (int i = 0; i < N; i++)
-    {
-        for (int i = 0; i < N; i++)
-        {
-            curDiff = abs(newX[i] - genX[i]);
-            diff = max(diff, curDiff);
-        }
-    }
-    cout << "Avarage difference for system = " << diff << endl;
-}
+//     double diff = 0.0, curDiff = 0.0;
+//     for (int i = 0; i < N; i++)
+//     {
+//         for (int i = 0; i < N; i++)
+//         {
+//             curDiff = abs(newX[i] - genX[i]);
+//             diff = max(diff, curDiff);
+//         }
+//     }
+//     cout << "Avarage difference for system = " << diff << endl;
+// }
 
 int main()
 {
@@ -305,23 +305,23 @@ int main()
 
     if (n == 2)
     {
-        int numTests = 20;
-        string testFileName = "testRand";
+        int numTests = 15;
+        string testFileName = testDir + "testRand";
         cout << "\nTest 1:\n\n";
         // part1.1
         int N = 10;
-        int L = N / 10;
+        int L = N / 10; // 1/10
         test1(testFileName, N, L, numTests);
 
-        L = floor(sqrt(N));
+        L = floor(sqrt(N)); // 1/L
         test1(testFileName, N, L, numTests);
 
         // part 1.2
         N = 400;
-        L = 40;
+        L = 40; // 1/10
         test1(testFileName, N, L, numTests);
 
-        L = floor(sqrt(N));
+        L = floor(sqrt(N)); // 1/L
         test1(testFileName, N, L, numTests);
 
         cout << "\nTest 2:\n\n";
@@ -331,8 +331,8 @@ int main()
         test1(testFileName, N, L, numTests);
 
         cout << "\nTest 3:\n\n";
-        N = 200;
-        L = 35;
+        N = 100;
+        L = 50;
         test2(testFileName, N, L, numTests);
     }
     if (n == 3)
