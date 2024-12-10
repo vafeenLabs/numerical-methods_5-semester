@@ -57,7 +57,7 @@ double *generateRandBand(ofstream &file, int N, int L)
 
 void MultiplyDiag(int N, int L, double **A, double *f, double *x, int k)
 {
-    double badK = pow(10, (-2) * k);
+    double badK = pow(10, (-1) * k);
     for (int i = 0; i < N; i++)
     {
         A[i][L - 1] *= badK;
@@ -87,7 +87,6 @@ void readMatrixFromFile(ifstream &inputFile, int N, int L, double *f, double **A
         inputFile >> f[i];
     }
 }
-
 
 void test1(string testFileName, int N, int L, int numTests)
 {
@@ -153,7 +152,7 @@ void test2(string testFileName, int N, int L, int numTests)
             ifstream fileRead(testFileName + ".txt");
             fileRead >> N >> L;
             readMatrixFromFile(fileRead, N, L, F, A);
-// Умножаем элементы на 10^-2к 
+            // Умножаем элементы на 10^-2к
             MultiplyDiag(N, L, A, F, sourceX, k);
 
             double *newX = solveBottomBandMatrix(N, L, A, F);
@@ -211,7 +210,6 @@ void testSolveFile(ifstream inputFile)
     }
     cout << "Avarage difference for system = " << diff << endl;
 }
-
 
 int main()
 {
@@ -307,26 +305,34 @@ int main()
 
     if (n == 2)
     {
-        srand(time(NULL));
-
         int numTests = 20;
-        string testFileName = testDir + "testMatrix";
-
+        string testFileName = "testRand";
+        cout << "\nTest 1:\n\n";
+        // part1.1
         int N = 10;
-        int L = 2;
-
+        int L = N / 10;
         test1(testFileName, N, L, numTests);
 
-        N = 10;
-        L = 5;
+        L = floor(sqrt(N));
         test1(testFileName, N, L, numTests);
 
-        N = 50;
-        L = 10;
+        // part 1.2
+        N = 400;
+        L = 40;
         test1(testFileName, N, L, numTests);
 
-        N = 50;
-        L = 20;
+        L = floor(sqrt(N));
+        test1(testFileName, N, L, numTests);
+
+        cout << "\nTest 2:\n\n";
+        N = L = 10;
+        test1(testFileName, N, L, numTests);
+        N = L = 100;
+        test1(testFileName, N, L, numTests);
+
+        cout << "\nTest 3:\n\n";
+        N = 200;
+        L = 35;
         test2(testFileName, N, L, numTests);
     }
     if (n == 3)
