@@ -170,7 +170,6 @@ void test2(string testFileName, int N, int L, int numTests)
         cout << "Matrix size = " << N << "x" << N << ", range = [-10; 10], k = " << (i + 1) * 2 << ": " << globDiffers[i] / numTests << endl;
 }
 
-
 int main()
 {
     setlocale(LC_ALL, "rus");
@@ -216,6 +215,9 @@ int main()
 
         // измерение погрешности
         double **newA = cloneMatrix(A, N, L);
+        cout << "\n\n";
+        printMatrix(N, L, A, f);
+        cout << "\n\n";
         double *genX = new double[N];
         double *newF = new double[N];
         for (int i = 0; i < N; i++)
@@ -291,8 +293,8 @@ int main()
         test1(testFileName, N, L, numTests);
 
         cout << "\nTest 3:\n\n";
-        N = 100;
-        L = 50;
+        N = 10;
+        L = 5;
         test2(testFileName, N, L, numTests);
     }
     if (n == 3)
