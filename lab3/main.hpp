@@ -5,6 +5,21 @@
 
 using namespace std;
 
+// Вывод квадратной матрицы
+void printMatrix(long double **A, int N)
+{
+    cout << "\n";
+    for (int i = 0; i < N; ++i)
+    {
+        for (int j = 0; j < N; ++j)
+        {
+            cout << A[i][j] << ' ';
+        }
+        cout << "\n";
+    }
+    cout << "\n";
+}
+
 // Сортировка массива по возрастанию модулей элементов
 void sort_array_abs(long double *arr, int size)
 {
@@ -23,29 +38,6 @@ void sort_array_abs(long double *arr, int size)
     }
 }
 
-// Генерация случайного нормализованного вектора
-// Нормализация означает, что длина (норма) вектора равна 1
-void generate_random_vector(long double *omega, int N)
-{
-    long double norm = 0.0; // Переменная для хранения длины вектора
-    for (int i = 0; i < N; ++i)
-    {
-        // Генерация случайных чисел от 0 до 1
-        omega[i] = (rand() / static_cast<long double>(RAND_MAX));
-        // Вычисление квадрата нормы
-        norm += omega[i] * omega[i];
-    }
-
-    // Вычисление длины (нормы) вектора
-    norm = sqrt(norm);
-    for (int i = 0; i < N; ++i)
-    {
-        // Нормализация каждого элемента вектора
-        omega[i] /= norm;
-    }
-
-    // В этот момент вектор omega нормализован
-}
 
 // Умножение матрицы на вектор
 // result = A * x
@@ -63,7 +55,6 @@ void mat_vec_mul(long double **A, long double *x, long double *result, int N)
 }
 
 // Генерация вектора, ортогонального заданному входному вектору
-// Выходной вектор находится в плоскости, заданной первыми двумя компонентами
 void generate_orth_vector(long double *input_vec, int N, long double *out_vec)
 {
     // Задание первых двух компонент ортогонального вектора

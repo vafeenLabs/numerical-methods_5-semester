@@ -1,5 +1,29 @@
 #include "main.hpp"
 
+// Генерация случайного нормализованного вектора
+// Нормализация означает, что длина (норма) вектора равна 1
+void generate_random_vector(long double *omega, int N)
+{
+    long double norm = 0.0; // Переменная для хранения длины вектора
+    for (int i = 0; i < N; ++i)
+    {
+        // Генерация случайных чисел от 0 до 1
+        omega[i] = (rand() / static_cast<long double>(RAND_MAX));
+        // Вычисление квадрата нормы
+        norm += omega[i] * omega[i];
+    }
+
+    // Вычисление длины (нормы) вектора
+    norm = sqrt(norm);
+    for (int i = 0; i < N; ++i)
+    {
+        // Нормализация каждого элемента вектора
+        omega[i] /= norm;
+    }
+
+    // В этот момент вектор omega нормализован
+}
+
 // Генерация симметричной матрицы с заданными собственными значениями
 void generate_symmetric_matrix(long double **A, long double **H, long double *eigenvalues, int N)
 {
@@ -15,6 +39,7 @@ void generate_symmetric_matrix(long double **A, long double **H, long double *ei
     }
 
     // PRINT(H)
+    printMatrix(H, N);
 
     long double **Amid = new long double *[N];
     for (int i = 0; i < N; ++i)
@@ -43,6 +68,7 @@ void generate_symmetric_matrix(long double **A, long double **H, long double *ei
     }
 
     // PRINT(A)
+    printMatrix(A, N);
 
     for (int i = 0; i < N; ++i)
     {
@@ -105,6 +131,7 @@ void straight_iteration_exhaust(long double **A, int N, long double lambda_1, lo
     }
 
     // PRINT(temp)
+    printMatrix(temp, N);
 
     long double alpha_k = 0.0, prev_alpha = 0.0, vecDiff = 10.0, norm;
     K = 0;
