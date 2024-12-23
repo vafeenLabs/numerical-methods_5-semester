@@ -8,7 +8,7 @@ using namespace std;
 // Вывод квадратной матрицы
 void printMatrix(long double **A, int N)
 {
-    cout << "\n";
+    cout << "\n\n\n";
     for (int i = 0; i < N; ++i)
     {
         for (int j = 0; j < N; ++j)
@@ -37,7 +37,6 @@ void sort_array_abs(long double *arr, int size)
         }
     }
 }
-
 
 // Умножение матрицы на вектор
 // result = A * x

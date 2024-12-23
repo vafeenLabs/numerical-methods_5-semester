@@ -38,7 +38,7 @@ void generate_symmetric_matrix(long double **A, long double **H, long double *ei
         }
     }
 
-    // PRINT(H)
+    cout << "\nМатрица H\n";
     printMatrix(H, N);
 
     long double **Amid = new long double *[N];
@@ -67,7 +67,7 @@ void generate_symmetric_matrix(long double **A, long double **H, long double *ei
         }
     }
 
-    // PRINT(A)
+    cout << "\nМатрица A\n";
     printMatrix(A, N);
 
     for (int i = 0; i < N; ++i)
@@ -97,110 +97,121 @@ long double angle_vectors(long double *a, long double *b, int N)
 // Метод обратных итераций с исчерпыванием
 void straight_iteration_exhaust(long double **A, int N, long double lambda_1, long double *x_1, long double lambda_2, long double *x_2, long double &lambda_3, long double *x_3, long double epsilon, int M, int &K, long double &r, long double &avg_vec, long double lambda_true, long double *x_true, long double &avg_lambda)
 {
-    long double *v = new long double[N];
-    long double **temp = new long double *[N];
-    long double *prev_v = new long double[N];
-    long double *prev_x_3 = new long double[N];
-    for (int i = 0; i < N; i++)
+    long double *v = new long double[N];        // Создание динамического массива v размером N для хранения текущего вектора
+    long double **temp = new long double *[N];  // Создание массива указателей на строки временной матрицы temp
+    long double *prev_v = new long double[N];   // Массив для хранения предыдущего вектора v
+    long double *prev_x_3 = new long double[N]; // Массив для хранения предыдущего собственного вектора x_3
+
+    for (int i = 0; i < N; i++) // Цикл для инициализации массивов
     {
-        temp[i] = new long double[N];
-        prev_x_3[i] = x_2[i];
+        temp[i] = new long double[N]; // Выделение памяти под каждую строку временной матрицы temp
+        prev_x_3[i] = x_2[i];         // Инициализация prev_x_3 значениями из x_2 перед началом итераций
     }
 
-    for (int i = 0; i < N; ++i)
+    for (int i = 0; i < N; ++i) // Генерация ортогонального вектора x_3 на основе x_2
     {
-        generate_orth_vector(x_2, N, x_3);
-        // x_3[i] = x_2[i];
+        generate_orth_vector(x_2, N, x_3); // Вызов функции для генерации ортогонального вектора
     }
 
-    // A(1) = A - lambda_n * x_n * x_n^t
+    // Первый проход - вычитание x_1
+    // Формирование матрицы A(1) = A - lambda_n * x_1 * x_1
+    for (int i = 0; i < N; ++i) // Цикл по строкам матрицы temp
+    {
+        for (int j = 0; j < N; ++j) // Цикл по столбцам матрицы temp
+        {
+            temp[i][j] = A[i][j] - lambda_1 * x_1[i] * x_1[j]; // Заполнение матрицы temp вычитанием произведения lambda_1 и внешнего произведения x_1 с самим собой
+        }
+    }
+
+    // Второй проход - вычитание x_2
     for (int i = 0; i < N; ++i)
     {
         for (int j = 0; j < N; ++j)
         {
-            temp[i][j] = A[i][j] - lambda_1 * x_1[i] * x_1[j];
+            temp[i][j] = temp[i][j] - lambda_2 * x_2[i] * x_2[j]; // Корректировка значений в temp с использованием второго собственного значения и вектора
         }
     }
 
-    for (int i = 0; i < N; ++i)
-    {
-        for (int j = 0; j < N; ++j)
-        {
-            temp[i][j] = temp[i][j] - lambda_2 * x_2[i] * x_2[j];
-        }
-    }
-
-    // PRINT(temp)
-    printMatrix(temp, N);
+    // PRINT(temp) // Закомментированная строка для вывода временной матрицы
 
     long double alpha_k = 0.0, prev_alpha = 0.0, vecDiff = 10.0, norm;
     K = 0;
-    for (int k = 0; k < M; ++k)
+
+    for (int k = 0; k < M; ++k) // Основной цикл итераций
     {
-        ++K;
-        // Нормализация вектора
-        norm = 0.0;
+        ++K; // Увеличение счетчика итераций
+
+        // вычисление нормы вектора
+        norm = 0.0; // Инициализация переменной для вычисления нормы вектора
         for (int i = 0; i < N; ++i)
         {
-            norm += x_3[i] * x_3[i];
+            norm += x_3[i] * x_3[i]; // Вычисление суммы квадратов элементов вектора x_3 для нахождения нормы
         }
         norm = sqrt(norm);
+
+        // нормализация вектора
         for (int i = 0; i < N; ++i)
         {
             if (K >= 2)
-                prev_v[i] = v[i];
-            v[i] = x_3[i] / norm;
+                prev_v[i] = v[i]; // Сохранение предыдущего значения вектора v при второй и последующих итерациях
+
+            v[i] = x_3[i] / norm; // Нормализация вектора v путем деления каждого элемента на его норму
         }
 
-        // x_k+1 = A(1) * v(k)
-        mat_vec_mul(temp, v, x_3, N);
+        // Вычисление нового вектора: x_k+1 = A(1) * v(k)
+        mat_vec_mul(temp, v, x_3, N); // Умножение матрицы temp на вектор v с сохранением результата в x_3
 
-        // Вычисление alpha_k
-        prev_alpha = alpha_k;
+        prev_alpha = alpha_k; // Сохранение предыдущего значения alpha_k перед его обновлением
         alpha_k = 0.0;
+
         for (int i = 0; i < N; ++i)
         {
-            alpha_k += v[i] * x_3[i];
+            alpha_k += v[i] * x_3[i]; // Вычисление alpha_k как скалярного произведения v и x_3
         }
-        if (k >= 2)
-            vecDiff = angle_vectors(v, prev_v, N);
 
-        // cout << fabs(alpha_k - prev_alpha) << "  " << vecDiff << endl;
+        if (k >= 2)
+            vecDiff = angle_vectors(v, prev_v, N); // Вычисление разности углов между текущим и предыдущим вектором
+
+        // Проверка условий остановки: если погрешность меньше заданной точности epsilon,
         if (fabs(alpha_k - prev_alpha) < epsilon && vecDiff < epsilon && fabs(alpha_k - lambda_true) < epsilon)
         {
             break;
         }
     }
-    avg_vec += vecDiff;
-    avg_lambda += fabs(alpha_k - prev_alpha);
-    // cout << vecDiff << endl;
 
-    lambda_3 = alpha_k;
+    avg_vec += vecDiff;                       // Обновление средней разности углов между векторами
+    avg_lambda += fabs(alpha_k - prev_alpha); // Обновление средней разности собственных значений
+
+    lambda_3 = alpha_k; // Сохранение найденного собственного значения
     for (int i = 0; i < N; i++)
-        x_3[i] = v[i];
+        x_3[i] = v[i]; // Копирование нормализованного вектора v в результатирующий собственный вектор x_3
 
     // Вычисление меры точности r
-    long double *Ax = new long double[N];
-    long double *lambda_x = new long double[N];
-    mat_vec_mul(A, x_3, Ax, N);
+    long double *Ax = new long double[N];       // Создание динамического массива Ax размером N для хранения результата умножения A на собственный вектор
+    long double *lambda_x = new long double[N]; // Создание динамического массива lambda_x размером N для хранения произведения найденного собственного значения на собственный вектор
+
+    mat_vec_mul(A, x_3, Ax, N); // Умножение матрицы A на собственный вектор x_3 с сохранением результата в Ax
+
     for (int i = 0; i < N; ++i)
     {
-        lambda_x[i] = lambda_3 * x_3[i];
+        lambda_x[i] = lambda_3 * x_3[i]; // Вычисление lambda_x как произведение найденного значения lambda_3 и собственного вектора x_3
     }
+
     r = 0.0;
     for (int i = 0; i < N; ++i)
     {
-        r = max(r, fabs(Ax[i] - lambda_x[i]));
+        r = max(r, fabs(Ax[i] - lambda_x[i])); // Обновление меры точности r как максимального значения разности между Ax и lambda_x
     }
 
     for (int i = 0; i < N; i++)
-        delete[] temp[i];
-    delete[] v;
-    delete[] prev_v;
-    delete[] temp;
-    delete[] prev_x_3;
-    delete[] Ax;
-    delete[] lambda_x;
+        delete[] temp[i]; // Освобождение памяти выделенной под строки временной матрицы temp
+
+    delete[] v;        // Освобождение памяти для массива v
+    delete[] prev_v;   // Освобождение памяти для массива prev_v
+    delete[] temp;     // Освобождение памяти для массива указателей на строки временной матрицы temp
+    delete[] prev_x_3; // Освобождение памяти для массива prev_x_3
+    delete[] Ax;       // Освобождение памяти для массива Ax
+    delete[] lambda_x; // Освобождение памяти для массива lambda_x
 }
 
 // Функция для генерации массива случайных чисел
