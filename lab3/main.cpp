@@ -38,7 +38,7 @@ void generate_symmetric_matrix(long double **A, long double **H, long double *ei
         }
     }
 
-    cout << "\nМатрица H\n";
+    cout << "\nМатрица H";
     printMatrix(H, N);
 
     long double **Amid = new long double *[N];
@@ -67,7 +67,7 @@ void generate_symmetric_matrix(long double **A, long double **H, long double *ei
         }
     }
 
-    cout << "\nМатрица A\n";
+    cout << "\nМатрица A";
     printMatrix(A, N);
 
     for (int i = 0; i < N; ++i)
@@ -94,7 +94,7 @@ long double angle_vectors(long double *a, long double *b, int N)
     return fabs(acos(fabs(cos)));
 }
 
-// Метод обратных итераций с исчерпыванием
+// Метод прямых итераций с исчерпыванием
 void straight_iteration_exhaust(long double **A, int N, long double lambda_1, long double *x_1, long double lambda_2, long double *x_2, long double &lambda_3, long double *x_3, long double epsilon, int M, int &K, long double &r, long double &avg_vec, long double lambda_true, long double *x_true, long double &avg_lambda)
 {
     long double *v = new long double[N];        // Создание динамического массива v размером N для хранения текущего вектора
@@ -132,8 +132,9 @@ void straight_iteration_exhaust(long double **A, int N, long double lambda_1, lo
         }
     }
 
-    // PRINT(temp) // Закомментированная строка для вывода временной матрицы
-
+    // PRINT(temp)
+    cout << "\nTemp:";
+    printMatrix(temp, N);
     long double alpha_k = 0.0, prev_alpha = 0.0, vecDiff = 10.0, norm;
     K = 0;
 
@@ -221,6 +222,10 @@ void generate_random_eigenvalues(long double *eigenvalues, int N, long double fr
     {
         eigenvalues[i] = from_number + (rand() / static_cast<long double>(RAND_MAX)) * (to_number - from_number);
     }
+    cout << "Сгенерированный набор собственных значений\n";
+    for (int i = 0; i < N; i++)
+        cout << eigenvalues[i] << ' ';
+    cout << "\n\n";
     sort_array_abs(eigenvalues, N);
 }
 
@@ -239,6 +244,8 @@ void make_test(int N, int numTests, int M, long double from_number, long double 
             H[i] = new long double[N];
         }
         generate_symmetric_matrix(A, H, eigenvalues, N);
+        cout << "Matrix H\n";
+        printMatrix(H, N);
         long double lambda_last = eigenvalues[N - 1];
         long double lambda_prelast = eigenvalues[N - 2];
         long double lambda_true = eigenvalues[N - 3];
